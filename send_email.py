@@ -2,6 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
+html_img = f'<p>{content}<br><img src="cid:image1"></br></p>'
 def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content):
     #邮件内容设置
     msg = MIMEMultipart()
@@ -15,9 +16,11 @@ def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content)
     message = MIMEText(content,'html','utf-8')
     msg.attach(message)
 
-    jpgpart = MIMEApplication(open('/root/meaasage_pre/chain_data_picture.png', 'rb').read())
+    jpgpart = MIMEImage(open('/root/meaasge_pre/chain_data_picture.png', 'rb').read())
+    f.close()
     jpgpart.add_header('Content-Disposition', 'attachment', filename='chain_data_picture.jpg')
     msg.attach(jpgpart)
+    msg.attach(MIMEText(html_img,'html','utf-8')) 
     #登录并发送邮件
     try:
         smtpObj = smtplib.SMTP_SSL(mail_host, 465)
