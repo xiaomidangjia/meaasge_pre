@@ -270,7 +270,7 @@ sub_eth_df_T = pd.DataFrame(sub_eth_df.values.T,columns=col_name,index=['ETH MVR
 sub_eth_df_T = sub_eth_df_T.round(4)
 combine_df = pd.concat([sub_res_df_T,sub_eth_df_T,sub_jun_df_T])
 combine_df = combine_df.applymap(lambda x: format(x, '.4'))
-combine_df = combine_df.reset_index(drop=True)
+combine_df = combine_df.reset_index(drop=False)
 #图片
 #全局牛熊市指标
 import matplotlib.pyplot as plt
