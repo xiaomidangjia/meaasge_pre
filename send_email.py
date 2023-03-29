@@ -2,7 +2,12 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-
+from smtplib import SMTP_SSL
+from email.header import Header
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+from email.mime.image import MIMEImage
 def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content):
     #邮件内容设置
     msg = MIMEMultipart()
