@@ -15,7 +15,7 @@ def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content)
     message = MIMEText(content,'html','utf-8')
     msg.attach(message)
 
-    jpgpart = MIMEApplication(open('/root/message_pre/chain_pic.png', 'rb').read())
+    jpgpart = MIMEApplication(open('/root/message_pre/chain_data_picture.png', 'rb').read())
     jpgpart.add_header('Content-Disposition', 'attachment', filename='chain_data_picture.jpg')
     msg.attach(jpgpart)
     #登录并发送邮件
