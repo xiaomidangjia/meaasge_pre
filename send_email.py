@@ -2,7 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-html_img = f'<p>{content}<br><img src="cid:image1"></br></p>'
+
 def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content):
     #邮件内容设置
     msg = MIMEMultipart()
@@ -12,7 +12,7 @@ def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content)
     msg['From'] = sender 
     #接受方信息     
     msg['To'] = receivers  
-    
+    html_img = f'<p>{content}<br><img src="cid:image1"></br></p>'
     message = MIMEText(content,'html','utf-8')
     msg.attach(message)
 
