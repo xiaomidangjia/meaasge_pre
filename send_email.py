@@ -22,7 +22,6 @@ def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content)
     msg.attach(message)
 
     jpgpart = MIMEImage(open('/root/meaasge_pre/chain_data_picture.png', 'rb').read())
-    f.close()
     jpgpart.add_header('Content-Disposition', 'attachment', filename='chain_data_picture.jpg')
     msg.attach(jpgpart)
     msg.attach(MIMEText(html_img,'html','utf-8')) 
