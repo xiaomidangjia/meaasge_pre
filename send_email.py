@@ -16,7 +16,7 @@ def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content)
     #发送方信息
     msg['From'] = sender 
     #接受方信息     
-    msg['To'] = receivers  
+    msg['To'] = ','.join(receivers)  
     html_img = f'<p>{content}<br><img src="cid:image1"></br></p>'
     message = MIMEText(content,'html','utf-8')
     msg.attach(message)
