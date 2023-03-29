@@ -246,7 +246,7 @@ jun_df = jun_df[(jun_df.date>='2018-12-01')]
 jun_df['cycle'] = jun_df['date'].apply(lambda x:cal(x))
 
 # 表格
-date_value = res_data['date'][len(res_data)-1] #+ datetime.timedelta(days=1)
+date_value = eth_df['date'][len(eth_df)-1] #+ datetime.timedelta(days=1)
 
 jun_df = jun_df.sort_values(by='date')
 jun_df = jun_df.reset_index(drop=True)
@@ -270,7 +270,7 @@ sub_eth_df_T = pd.DataFrame(sub_eth_df.values.T,columns=col_name,index=['ETH MVR
 sub_eth_df_T = sub_eth_df_T.round(4)
 combine_df = pd.concat([sub_res_df_T,sub_eth_df_T,sub_jun_df_T])
 combine_df = combine_df.applymap(lambda x: format(x, '.4'))
-
+combine_df = combine_df.reset_index(drop=True)
 #图片
 #全局牛熊市指标
 import matplotlib.pyplot as plt
@@ -370,8 +370,8 @@ ax8 = sns.lineplot(x="date", y="price_ma4y", data=sub_jun_df, color='blue', ax=a
 ax8.tick_params(labelsize=20)
 plt.title('Moving Average Trend', fontsize=50) 
 plt.legend(labels=['price_ma4y',"price_ma200","price_ma120"],loc="upper left",fontsize=30)  
-plt.show()
-plt.savefig('chain_data_picture.png')
+#plt.show()
+fig.savefig('chain_data_picture.png')
 plt.close()
 #plt.savefig('50MA aSOPR.png')
 #======自动发邮件
