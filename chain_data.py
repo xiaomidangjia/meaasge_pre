@@ -345,7 +345,7 @@ res_df['w1'] = 0.95
 res_df['w2'] = 0.65
 res_df['w3'] = 0.5
 axes91 = plt.subplot2grid((9,1),(6,0))
-axes_fu91 = axes51.twinx()
+axes_fu91 = axes91.twinx()
 ax91 = sns.lineplot(x="date", y="w1", data=res_df, color='green',  ax=axes_fu91)
 ax91 = sns.lineplot(x="date", y="w2", data=res_df, color='red',  ax=axes_fu91)
 ax91 = sns.lineplot(x="date", y="w3", data=res_df, color='black',  ax=axes_fu91)
