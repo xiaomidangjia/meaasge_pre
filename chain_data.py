@@ -119,6 +119,7 @@ mvrv = []
 rhold = []
 net = []
 price = []
+sopr = []
 sopr_7 = []
 sopr_50 = []
 supply = []
@@ -129,13 +130,14 @@ for j in range(len(last_data)-49):
     pm.append(ins['Puell Multiple'][49])
     mvrv.append(ins['MVRV Z-Score'][49])
     rhold.append(ins['RHODL Ratio'][49])
+    sopr.append(ins['aSOPR'][49])
     sopr_50.append(np.mean(ins['aSOPR']))
     supply.append(ins['Percent Supply in Profit'][49])
     price.append(ins['Price'][49])
     #短期指标
     net.append(np.mean(ins['Net Realized Profit/Loss'][-7:]))
     sopr_7.append(np.mean(ins['aSOPR'][-7:]))
-res_df = pd.DataFrame({'date':date,'Puell Multiple':pm,'MVRV Z-Score':mvrv,'RHODL Ratio':rhold,'Net Realized Profit/Loss':net,'Price':price,'Percent Supply in Profit':supply,'7MA aSOPR':sopr_7,'50MA aSOPR':sopr_50})
+res_df = pd.DataFrame({'date':date,'Puell Multiple':pm,'MVRV Z-Score':mvrv,'RHODL Ratio':rhold,'Net Realized Profit/Loss':net,'Price':price,'Percent Supply in Profit':supply,'7MA aSOPR':sopr_7,'50MA aSOPR':sopr_50,'aSOPR':sopr})
 res_df = res_df[(res_df.date>='2013-01-01')]
 res_df['cycle'] = res_df['date'].apply(lambda x:cal(x))
 res_df['log(BTC price)'] = np.log(res_df['Price'])
@@ -245,12 +247,64 @@ jun_df = pd.DataFrame({'date':date,'price_raw':price_raw,'price_ma120':price_ma1
 jun_df = jun_df[(jun_df.date>='2018-12-01')]
 jun_df['cycle'] = jun_df['date'].apply(lambda x:cal(x))
 
+
+url_address = ['https://api.glassnode.com/v1/metrics/market/price_usd_close']
+url_name = ['Price']
+# insert your API key here
+API_KEY = '26BLocpWTcSU7sgqDdKzMHMpJDm'
+data_list = []
+for num in range(len(url_name)):
+    print(num)
+    addr = url_address[num]
+    name = url_name[num]
+    # make API request
+    res_addr = requests.get(addr,params={'a': 'BTC', 'api_key': API_KEY})
+    # convert to pandas dataframe
+    ins = pd.read_json(res_addr.text, convert_dates=['t'])
+    ins['date'] =  ins['t']
+    ins[name] =  ins['v']
+    ins = ins[['date',name]]
+    data_list.append(ins)
+
+result_data = data_list[0][['date']]
+for i in range(len(data_list)):
+    df = data_list[i]
+    result_data = result_data.merge(df,how='left',on='date')
+#last_data = result_data[(result_data.date>='2016-01-01') & (result_data.date<='2020-01-01')]
+btc_data = result_data[(result_data.date>='2012-10-01')]
+btc_data = btc_data.sort_values(by=['date'])
+btc_data = btc_data.reset_index(drop=True)
+data_list = []
+for num in range(len(url_name)):
+    print(num)
+    addr = url_address[num]
+    name = url_name[num]
+    # make API request
+    res_addr = requests.get(addr,params={'a': 'ETH', 'api_key': API_KEY})
+    # convert to pandas dataframe
+    ins = pd.read_json(res_addr.text, convert_dates=['t'])
+    ins['date'] =  ins['t']
+    ins[name] =  ins['v']
+    ins = ins[['date',name]]
+    data_list.append(ins)
+
+result_data = data_list[0][['date']]
+for i in range(len(data_list)):
+    df = data_list[i]
+    result_data = result_data.merge(df,how='left',on='date')
+#last_data = result_data[(result_data.date>='2016-01-01') & (result_data.date<='2020-01-01')]
+eth_data = result_data[(result_data.date>='2012-10-01')]
+eth_data = eth_data.sort_values(by=['date'])
+eth_data = eth_data.reset_index(drop=True)
+combine_data = eth_data.merge(btc_data,how='left',on=['date'])
+combine_data['per'] = combine_data['Price_x']/combine_data['Price_y']
+
 # 表格
 date_value = eth_df['date'][len(eth_df)-1] #+ datetime.timedelta(days=1)
 
 jun_df = jun_df.sort_values(by='date')
 jun_df = jun_df.reset_index(drop=True)
-sub_jun_df = jun_df[['date','price_raw','price_ma120','price_ma200','price_ma4y']][-5:-1]
+sub_jun_df = jun_df[['date','price_raw','price_ma120','price_ma200','price_ma4y']][-4:]
 sub_jun_df = sub_jun_df.set_index('date')
 col_name = []
 for ele in list(sub_jun_df.index):
@@ -259,16 +313,24 @@ sub_jun_df_T = pd.DataFrame(sub_jun_df.values.T,columns=col_name,index=['price_c
 sub_jun_df_T = sub_jun_df_T.round(0)
 res_df = res_df.sort_values(by='date')
 res_df = res_df.reset_index(drop=True)
-sub_res_df = res_df[['date','Puell Multiple','MVRV Z-Score','RHODL Ratio','Net Realized Profit/Loss','Percent Supply in Profit','7MA aSOPR','50MA aSOPR']][-4:]
+sub_res_df = res_df[['date','Puell Multiple','MVRV Z-Score','RHODL Ratio','Net Realized Profit/Loss','Percent Supply in Profit','7MA aSOPR','50MA aSOPR','aSOPR']][-4:]
 sub_res_df = sub_res_df.set_index('date')
-sub_res_df_T = pd.DataFrame(sub_res_df.values.T,columns=col_name,index=['Puell Multiple','BTC MVRV Z-Score','RHODL Ratio','Net Realized Profit/Loss','Percent Supply in Profit','7MA aSOPR','50MA aSOPR'])
+sub_res_df_T = pd.DataFrame(sub_res_df.values.T,columns=col_name,index=['Puell Multiple','BTC MVRV Z-Score','RHODL Ratio','Net Realized Profit/Loss','Percent Supply in Profit','7MA aSOPR','50MA aSOPR','aSOPR'])
 eth_df = eth_df.sort_values(by='date')
 eth_df = eth_df.reset_index(drop=True)
 sub_eth_df = eth_df[['date','MVRV Z-Score']][-4:]
 sub_eth_df = sub_eth_df.set_index('date')
 sub_eth_df_T = pd.DataFrame(sub_eth_df.values.T,columns=col_name,index=['ETH MVRV Z-Score'])
 sub_eth_df_T = sub_eth_df_T.round(4)
-combine_df = pd.concat([sub_res_df_T,sub_eth_df_T,sub_jun_df_T])
+
+combine_data = combine_data.sort_values(by='date')
+combine_data = combine_data.reset_index(drop=True)
+sub_combine_data = combine_data[['date','per']][-4:]
+sub_combine_data = sub_combine_data.set_index('date')
+sub_combine_data_T = pd.DataFrame(sub_combine_data.values.T,columns=col_name,index=['ETH P/BTC P'])
+sub_combine_data_T = sub_combine_data_T.round(4)
+
+combine_df = pd.concat([sub_res_df_T,sub_eth_df_T,sub_jun_df_T,sub_combine_data_T])
 combine_df = combine_df.applymap(lambda x: format(x, '.4'))
 combine_df = combine_df.reset_index(drop=False)
 #图片
@@ -282,7 +344,7 @@ fig = plt.figure(dpi=100)
 #fig.set(alpha=0.2)
 # 第一张小图
 # 绘画折线图
-axes1 = plt.subplot2grid((9,1),(0,0))
+axes1 = plt.subplot2grid((10,1),(0,0))
 axes_fu1 = axes1.twinx()
 ax1 = sns.lineplot(x="date", y="x1", data=res_df, color = 'green',ax=axes_fu1)
 ax1 = sns.lineplot(x="date", y="x2", data=res_df, color='red',ax=axes_fu1)
@@ -293,7 +355,7 @@ ax11.tick_params(labelsize=20)
 plt.title('MVRV Z-Score —— log(BTC price)', fontsize=50) 
 #plt.show()
 #plt.savefig('MVRV Z-Score.png')
-axes7 = plt.subplot2grid((9,1),(1,0))
+axes7 = plt.subplot2grid((10,1),(1,0))
 axes_fu7 = axes7.twinx()
 ax7 = sns.lineplot(x="date", y="x1", data=eth_df, color = 'green',ax=axes_fu7)
 ax7 = sns.lineplot(x="date", y="x2", data=eth_df, color='red',ax=axes_fu7)
@@ -304,7 +366,7 @@ ax7.tick_params(labelsize=20)
 ax71.tick_params(labelsize=20)
 plt.title('MVRV Z-Score —— ETH Price', fontsize=50) 
 # 绘画折线图
-axes2 = plt.subplot2grid((9,1),(2,0))
+axes2 = plt.subplot2grid((10,1),(2,0))
 axes_fu2 = axes2.twinx()
 ax2 = sns.lineplot(x="date", y="y1", data=res_df, color = 'green', ax=axes_fu2)
 ax2 = sns.lineplot(x="date", y="y2", data=res_df, color='red', ax=axes_fu2)
@@ -317,7 +379,7 @@ plt.title('Puell Multiple —— log(BTC price)', fontsize=50)
 #plt.savefig('Puell.png')
 #plt.close()
 # 绘画折线图
-axes3 = plt.subplot2grid((9,1),(3,0))
+axes3 = plt.subplot2grid((10,1),(3,0))
 axes_fu3 = axes3.twinx()
 ax3 = sns.lineplot(x="date", y="z1", data=res_df, color = 'green',ax=axes_fu3)
 ax3 = sns.lineplot(x="date", y="z2", data=res_df, color='red', ax=axes_fu3)
@@ -330,7 +392,7 @@ plt.title('log(RHODL Ratio) —— log(BTC price)', fontsize=50)
 #plt.savefig('RHODL.png')
 #plt.close()
 # 绘画折线图
-axes4 = plt.subplot2grid((9,1),(4,0))
+axes4 = plt.subplot2grid((10,1),(4,0))
 axes_fu4 = axes4.twinx()
 ax4 = sns.lineplot(x="date", y="w", data=res_df, color='red', ax=axes_fu4)
 ax41 = sns.lineplot(x="date", y="50MA aSOPR",color='black',data=res_df,ax=axes_fu4)
@@ -344,7 +406,7 @@ plt.title('50MA aSOPR —— log(BTC price)', fontsize=50)
 res_df['w1'] = 0.95
 res_df['w2'] = 0.65
 res_df['w3'] = 0.5
-axes91 = plt.subplot2grid((9,1),(5,0))
+axes91 = plt.subplot2grid((10,1),(5,0))
 axes_fu91 = axes91.twinx()
 ax91 = sns.lineplot(x="date", y="w1", data=res_df, color='green',  ax=axes_fu91)
 ax91 = sns.lineplot(x="date", y="w2", data=res_df, color='red',  ax=axes_fu91)
@@ -358,7 +420,7 @@ ax91.legend(loc='upper left')
 
 # 绘画折线图
 sub_res_df = res_df[res_df.date>='2022-01-01']
-axes5 = plt.subplot2grid((9,1),(6,0))
+axes5 = plt.subplot2grid((10,1),(6,0))
 axes_fu5 = axes5.twinx()
 ax5 = sns.lineplot(x="date", y="w", data=sub_res_df, color='red',  ax=axes_fu5)
 ax51 = sns.lineplot(x="date", y="Net Realized Profit/Loss",color='black',data=sub_res_df, ax=axes_fu5)
@@ -367,7 +429,7 @@ ax5.tick_params(labelsize=20)
 ax51.tick_params(labelsize=20)
 plt.title('7MA Net Realized Profit/Loss —— log(BTC price)', fontsize=50) 
 ax5.legend(loc='upper left')
-axes6 = plt.subplot2grid((9,1),(7,0))
+axes6 = plt.subplot2grid((10,1),(7,0))
 axes_fu6 = axes6.twinx()
 ax6 = sns.lineplot(x="date", y="w", data=sub_res_df, color='red', ax=axes_fu6)
 ax61 = sns.lineplot(x="date", y="7MA aSOPR",color='black',data=sub_res_df, ax=axes_fu6)
@@ -377,8 +439,8 @@ ax61.tick_params(labelsize=20)
 plt.title('7MA aSOPR —— log(BTC price)', fontsize=50) 
 ax6.legend(loc='upper left')
 #axes6.yticks(size=30,weight='bold')#设置大小及加粗
-axes8 = plt.subplot2grid((9,1),(8,0))
-sub_jun_df = jun_df[(jun_df.date>='2018-11-01') & (jun_df.date<='2023-06-01')]
+axes8 = plt.subplot2grid((10,1),(8,0))
+sub_jun_df = jun_df[(jun_df.date>='2018-11-01') & (jun_df.date<='2026-06-01')]
 ax8 = sns.lineplot(x="date", y="price_raw", data=sub_jun_df, color = 'black',ax=axes8)
 ax8 = sns.lineplot(x="date", y="price_ma120",color='red',data=sub_jun_df, ax=axes8)
 ax8 = sns.lineplot(x="date", y="price_ma200",color='green', data=sub_jun_df, ax=axes8)
@@ -387,6 +449,16 @@ ax8.tick_params(labelsize=20)
 plt.title('Moving Average Trend', fontsize=50) 
 plt.legend(labels=['price_ma4y',"price_ma200","price_ma120"],loc="upper left",fontsize=30)  
 #plt.show()
+
+axes81 = plt.subplot2grid((10,1),(9,0))
+axes81_fu = axes81.twinx()
+sub_combine_data_df = combine_data[(combine_data.date>='2018-11-01')]
+axes = sns.lineplot(x="date", y="Price_y", data=sub_combine_data_df, color = 'black',ax=axes81)
+ax8 = sns.lineplot(x="date", y="per",color='red',data=sub_combine_data_df, ax=axes81_fu)
+ax8.tick_params(labelsize=20)
+plt.title('BTC Price—— ETH P/BTC P', fontsize=50) 
+plt.legend(labels=['BTC Price',"ETH P/BTC P"],loc="upper left",fontsize=30)  
+
 fig.savefig('chain_data_picture.png')
 plt.close()
 #plt.savefig('50MA aSOPR.png')
