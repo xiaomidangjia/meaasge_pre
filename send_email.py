@@ -34,12 +34,12 @@ def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content,
                ETH P/BTC P: ETH价格/BTC价格，可以观察ETH的价格是不是被低估  \n \
                Futures Long Liquidations Dominance: 大于0.5说明合约中多头优势，小于0.5说明合约中空头优势 '
     message_1 = MIMEText(explain,'plain','utf-8')
-    message_1.add_header('Content-Disposition', 'attachment', filename='图表中的指标解释')
+    #message_1.add_header('Content-Disposition', 'attachment', filename='图表中的指标解释')
     msg.attach(message_1)
 
     text = '按照合约占比投资，准确率为：'+str(zhunquelv)
     message_2 = MIMEText(text,'plain','utf-8')
-    message_2.add_header('Content-Disposition', 'attachment', filename='按照多空比投资准确率')
+    #message_2.add_header('Content-Disposition', 'attachment', filename='按照多空比投资准确率')
     msg.attach(message_2)
 
 
