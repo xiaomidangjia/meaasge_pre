@@ -30,11 +30,11 @@ def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content,
                aSOPR：小于1，预示全网陷入亏损，可以尝试定投 \
                ETH P/BTC P: ETH价格/BTC价格，可以观察ETH的价格是不是被低估 \
                Futures Long Liquidations Dominance: 大于0.5说明合约中多头优势，小于0.5说明合约中空头优势 '
-    message_1 = MIMEText(explain,'utf-8')
+    message_1 = MIMEText(explain,'html','utf-8')
     msg.attach(message_1)
 
     text = '按照合约占比投资，准确率为：'+str(zhunquelv)
-    message_2 = MIMEText(text,'utf-8')
+    message_2 = MIMEText(text,'html','utf-8')
     msg.attach(message_2)
 
     message = MIMEText(content,'html','utf-8')
