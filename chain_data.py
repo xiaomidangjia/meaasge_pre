@@ -488,7 +488,7 @@ sub_res_df = res_df[res_df.date>='2022-01-01']
 axes5 = plt.subplot2grid((10,1),(6,0))
 axes_fu5 = axes5.twinx()
 ax5 = sns.lineplot(x="date", y="w", data=sub_res_df, color='red',  ax=axes_fu5)
-ax51 = sns.lineplot(x="date", y="Net Realized Profit/Loss",color='black',data=sub_res_df, ax=axes_fu5)
+ax51 = sns.lineplot(x="date", y="7MA NRPL",color='black',data=sub_res_df, ax=axes_fu5)
 ax5 = sns.lineplot(x="date", y="log(BTC price)",hue = 'cycle', data=sub_res_df, ax=axes5)
 ax5.tick_params(labelsize=20)
 ax51.tick_params(labelsize=20)
