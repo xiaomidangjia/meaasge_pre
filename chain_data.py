@@ -137,7 +137,7 @@ for j in range(len(last_data)-49):
     #短期指标
     net.append(np.mean(ins['Net Realized Profit/Loss'][-7:]))
     sopr_7.append(np.mean(ins['aSOPR'][-7:]))
-res_df = pd.DataFrame({'date':date,'Puell Multiple':pm,'MVRV Z-Score':mvrv,'RHODL Ratio':rhold,'Net Realized Profit/Loss':net,'Price':price,'Percent Supply in Profit':supply,'7MA aSOPR':sopr_7,'50MA aSOPR':sopr_50,'aSOPR':sopr})
+res_df = pd.DataFrame({'date':date,'Puell Multiple':pm,'MVRV Z-Score':mvrv,'RHODL Ratio':rhold,'7MA NRPL':net,'Price':price,'Percent Supply in Profit':supply,'7MA aSOPR':sopr_7,'50MA aSOPR':sopr_50,'aSOPR':sopr})
 res_df = res_df[(res_df.date>='2013-01-01')]
 res_df['cycle'] = res_df['date'].apply(lambda x:cal(x))
 res_df['log(BTC price)'] = np.log(res_df['Price'])
@@ -313,9 +313,9 @@ sub_jun_df_T = pd.DataFrame(sub_jun_df.values.T,columns=col_name,index=['price_c
 sub_jun_df_T = sub_jun_df_T.round(0)
 res_df = res_df.sort_values(by='date')
 res_df = res_df.reset_index(drop=True)
-sub_res_df = res_df[['date','Puell Multiple','MVRV Z-Score','RHODL Ratio','Net Realized Profit/Loss','Percent Supply in Profit','7MA aSOPR','50MA aSOPR','aSOPR']][-4:]
+sub_res_df = res_df[['date','Puell Multiple','MVRV Z-Score','RHODL Ratio','7MA NRPL','Percent Supply in Profit','7MA aSOPR','50MA aSOPR','aSOPR']][-4:]
 sub_res_df = sub_res_df.set_index('date')
-sub_res_df_T = pd.DataFrame(sub_res_df.values.T,columns=col_name,index=['Puell Multiple','BTC MVRV Z-Score','RHODL Ratio','Net Realized Profit/Loss','Percent Supply in Profit','7MA aSOPR','50MA aSOPR','aSOPR'])
+sub_res_df_T = pd.DataFrame(sub_res_df.values.T,columns=col_name,index=['Puell Multiple','BTC MVRV Z-Score','RHODL Ratio','7MA NRPL','Percent Supply in Profit','7MA aSOPR','50MA aSOPR','aSOPR'])
 eth_df = eth_df.sort_values(by='date')
 eth_df = eth_df.reset_index(drop=True)
 sub_eth_df = eth_df[['date','MVRV Z-Score']][-4:]
@@ -330,7 +330,72 @@ sub_combine_data = sub_combine_data.set_index('date')
 sub_combine_data_T = pd.DataFrame(sub_combine_data.values.T,columns=col_name,index=['ETH P/BTC P'])
 sub_combine_data_T = sub_combine_data_T.round(4)
 
-combine_df = pd.concat([sub_res_df_T,sub_eth_df_T,sub_jun_df_T,sub_combine_data_T])
+# 加上多空比指标
+
+url_address = ['https://api.glassnode.com/v1/metrics/derivatives/futures_liquidated_volume_long_relative',
+              'https://api.glassnode.com/v1/metrics/market/price_usd_close']
+url_name = ['futures','price']
+# insert your API key here
+API_KEY = '26BLocpWTcSU7sgqDdKzMHMpJDm'
+data_list = []
+for num in range(len(url_name)):
+    print(num)
+    addr = url_address[num]
+    name = url_name[num]
+    # make API request
+    res_addr = requests.get(addr,params={'a': 'BTC', 'api_key': API_KEY})
+    # convert to pandas dataframe
+    ins = pd.read_json(res_addr.text, convert_dates=['t'])
+    #ins.to_csv('test.csv')
+    #print(ins['o'])
+    #print(ins)
+    ins['date'] =  ins['t']
+    ins['value'] =  ins['v']
+    ins = ins[['date','value']]
+    data_list.append(ins)
+result_data = data_list[0][['date']]
+for i in range(len(data_list)):
+    df = data_list[i]
+    result_data = result_data.merge(df,how='left',on='date')
+#last_data = result_data[(result_data.date>='2016-01-01') & (result_data.date<='2020-01-01')]
+futures_data = result_data[(result_data.date>='2013-01-01')]
+futures_data = futures_data.sort_values(by=['date'])
+futures_data = futures_data.reset_index(drop=True)
+
+futures_data['next_value'] = futures_data['value_y'].shift(-1)
+flag_1 = []
+flag_2 = []
+flag_3 = []
+for i in range(len(futures_data)):
+    if futures_data['next_value'][i] > futures_data['value_y'][i]:
+        flag_1.append(1)
+    else:
+        flag_1.append(0)
+    if futures_data['value_x'][i] > 0.5:
+        flag_2.append(1)
+    else:
+        flag_2.append(0)
+futures_data['flag_1'] = flag_1
+futures_data['flag_2'] = flag_2
+for i in range(len(futures_data)):
+    if futures_data['flag_1'][i] == futures_data['flag_2'][i]:
+        flag_3.append(1)
+    else:
+        flag_3.append(0)
+futures_data['flag_3'] = flag_3
+futures_data = futures_data[['date','value_x','flag_3']]
+zhunquelv = np.mean(futures_data['flag_3'][0:len(futures_data)-1])
+colNameDict = {'value_x':'Futures Long Liquidations Dominance','flag_3':'status'}                  #将‘源数据列名’改为‘新列名’
+futures_data.rename(columns = colNameDict,inplace=True)
+futures_data = futures_data.sort_values(by='date')
+futures_data = futures_data.reset_index(drop=True)
+sub_futures_data = futures_data[['date','Futures Long Liquidations Dominance','status']][-4:]
+sub_futures_data = sub_futures_data.set_index('date')
+sub_futures_data_T = pd.DataFrame(sub_futures_data.values.T,columns=col_name,index=['Futures Long Liquidations Dominance','status'])
+sub_futures_data_T = sub_futures_data_T.round(4)
+
+
+combine_df = pd.concat([sub_res_df_T,sub_eth_df_T,sub_jun_df_T,sub_combine_data_T,sub_futures_data_T])
 combine_df = combine_df.applymap(lambda x: format(x, '.4'))
 combine_df = combine_df.reset_index(drop=False)
 #图片
@@ -474,6 +539,6 @@ mail_pass = 'GKXGKVGTYBGRMAVE'
 #邮件发送方邮箱地址
 sender = 'lee_daowei@163.com'
 #邮件接受方邮箱地址，注意需要[]包裹，这意味着你可以写多个邮件地址群发
-receivers = ['lee_daowei@163.com']  
+receivers = ['lee_daowei@163.com','jianwei890816@gmail.com','yushuanghe92@outlook.com','kiven.liben@foxmail.com']  
 context = f'区块链链上数据{date_value}'
-email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content)
+email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content,zhunquelv)
