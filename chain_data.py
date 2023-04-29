@@ -364,7 +364,7 @@ futures_data = futures_data.reset_index(drop=True)
 
 futures_data_before = pd.read_csv('futures_data.csv')
 futures_data_before['date'] = pd.to_datetime(futures_data_before['date'])
-futures_data_next = pd.concat(futures_data_before,futures_data)
+futures_data_next = pd.concat([futures_data_before,futures_data])
 futures_data_next = futures_data_next.drop_duplicates()
 futures_data_next.to_csv('futures_data.csv')
 
