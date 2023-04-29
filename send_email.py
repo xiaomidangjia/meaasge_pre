@@ -21,18 +21,19 @@ def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content,
     message = MIMEText(content,'html','utf-8')
     msg.attach(message)
 
-    explain = '大周期指标（按年记）：Puell Multiple，BTC MVRV Z-Score，RHODL Ratio， 50MA aSOPR \n \
-               中周期指标（按周记）：7MA NRPL，7MA aSOPR   \n \
-               短周期指标（按日记）：aSOPR，Futures Long Liquidations Dominance  \n \
-               Puell Multiple：大于4预示牛顶，小于0.5预示熊底  \n \
-               BTC MVRV Z-Score: 大于7预示牛顶，小于0预示熊底   \n \
-               RHODL Ratio: 大于10.8预示牛顶，小于5.86预示熊底   \n \
-               50MA aSOPR :小于0.94预示熊底  \n \
-               7MA NRPL: 小于0，预示短期底部，可以进行低吸   \n \
-               7MA aSOPR：小于1，预示短期底部，可以进行低吸   \n \
-               aSOPR：小于1，预示全网陷入亏损，可以尝试定投  \n \
-               ETH P/BTC P: ETH价格/BTC价格，可以观察ETH的价格是不是被低估  \n \
-               Futures Long Liquidations Dominance: 大于0.5说明合约中多头优势，小于0.5说明合约中空头优势 '
+    explain = '\
+    大周期指标（按年记）：Puell Multiple，BTC MVRV Z-Score，RHODL Ratio， 50MA aSOPR \n \
+    中周期指标（按周记）：7MA NRPL，7MA aSOPR   \n \
+    短周期指标（按日记）：aSOPR，Futures Long Liquidations Dominance  \n \
+    Puell Multiple：大于4预示牛顶，小于0.5预示熊底  \n \
+    BTC MVRV Z-Score: 大于7预示牛顶，小于0预示熊底   \n \
+    RHODL Ratio: 大于10.8预示牛顶，小于5.86预示熊底   \n \
+    50MA aSOPR :小于0.94预示熊底  \n \
+    7MA NRPL: 小于0，预示短期底部，可以进行低吸   \n \
+    7MA aSOPR：小于1，预示短期底部，可以进行低吸   \n \
+    aSOPR：小于1，预示全网陷入亏损，可以尝试定投  \n \
+    ETH P/BTC P: ETH价格/BTC价格，可以观察ETH的价格是不是被低估  \n \
+    Futures Long Liquidations Dominance: 大于0.5说明合约中多头优势，小于0.5说明合约中空头优势 '
     message_1 = MIMEText(explain,'plain','utf-8')
     message_1["Content-Type"] = 'application/octet-stream'
     message_1["Content-Disposition"] = 'attachment; filename="图表中的指标解释"'

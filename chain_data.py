@@ -362,6 +362,12 @@ futures_data = result_data[(result_data.date>='2013-01-01')]
 futures_data = futures_data.sort_values(by=['date'])
 futures_data = futures_data.reset_index(drop=True)
 
+futures_data_before = pd.read_csv('futures_data.csv')
+futures_data_before['date'] = pd.to_datetime(futures_data_before['date'])
+futures_data_next = pd.concat(futures_data_before,futures_data)
+futures_data_next = futures_data_next.drop_duplicates()
+futures_data_next.to_csv('futures_data.csv')
+
 futures_data['next_value'] = futures_data['value_y'].shift(-1)
 flag_1 = []
 flag_2 = []
