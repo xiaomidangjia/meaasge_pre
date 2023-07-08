@@ -366,7 +366,7 @@ futures_data_before = pd.read_csv('futures_data.csv')
 futures_data_before['date'] = pd.to_datetime(futures_data_before['date'])
 futures_data_next = pd.concat([futures_data_before,futures_data])
 futures_data_next = futures_data_next.drop_duplicates()
-futures_data_next.to_csv('futures_data.csv')
+#futures_data_next.to_csv('futures_data.csv')
 
 futures_data['next_value'] = futures_data['value_y'].shift(-1)
 flag_1 = []
@@ -404,6 +404,7 @@ sub_futures_data_T = sub_futures_data_T.round(4)
 combine_df = pd.concat([sub_res_df_T,sub_eth_df_T,sub_jun_df_T,sub_combine_data_T,sub_futures_data_T])
 combine_df = combine_df.applymap(lambda x: format(x, '.4'))
 combine_df = combine_df.reset_index(drop=False)
+'''
 #图片
 #全局牛熊市指标
 import matplotlib.pyplot as plt
@@ -532,6 +533,7 @@ plt.legend(labels=['BTC Price',"ETH P/BTC P"],loc="upper left",fontsize=30)
 
 fig.savefig('chain_data_picture.png')
 plt.close()
+'''
 #plt.savefig('50MA aSOPR.png')
 #======自动发邮件
 content = create_html_table(combine_df, f'链上数据一览{date_value}')

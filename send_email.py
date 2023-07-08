@@ -39,18 +39,18 @@ def email_sender(mail_host,mail_user,mail_pass,sender,receivers,context,content,
     message_1["Content-Disposition"] = 'attachment; filename="图表中的指标解释"'
     msg.attach(message_1)
 
-    text = '按照合约占比投资，准确率为：'+str(zhunquelv)
-    message_2 = MIMEText(text,'plain','utf-8')
-    message_2["Content-Type"] = 'application/octet-stream'
-    message_2["Content-Disposition"] = 'attachment; filename="按照多空比投资准确率"'
+    #text = '按照合约占比投资，准确率为：'+str(zhunquelv)
+    #message_2 = MIMEText(text,'plain','utf-8')
+    #message_2["Content-Type"] = 'application/octet-stream'
+    #message_2["Content-Disposition"] = 'attachment; filename="按照多空比投资准确率"'
     #message_2.add_header('Content-Disposition', 'attachment', filename='按照多空比投资准确率')
-    msg.attach(message_2)
+    #msg.attach(message_2)
 
 
 
-    jpgpart = MIMEImage(open('/root/meaasge_pre/chain_data_picture.png', 'rb').read())
-    jpgpart.add_header('Content-Disposition', 'attachment', filename='chain_data_picture.jpg')
-    msg.attach(jpgpart)
+    #jpgpart = MIMEImage(open('/root/meaasge_pre/chain_data_picture.png', 'rb').read())
+    #jpgpart.add_header('Content-Disposition', 'attachment', filename='chain_data_picture.jpg')
+    #msg.attach(jpgpart)
     #msg.attach(MIMEText(html_img,'html','utf-8')) 
     #登录并发送邮件
     try:
